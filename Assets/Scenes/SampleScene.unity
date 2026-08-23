@@ -854,8 +854,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FPController
   moveSpeed: 5
   gravity: -9.81
+  terminalVelocity: -50
   cameraTransform: {fileID: 330585546}
-  lookSensitivity: 2
+  lookSensitivity: 0.5
   verticalLookLimit: 90
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
