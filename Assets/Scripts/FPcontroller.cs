@@ -12,6 +12,7 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
     public Transform cameraTransform;
     public float lookSensitivity = 0.1f;
     public float verticalLookLimit = 90f;
+    public float initialVerticalLook = 0f;
 
     private CharacterController controller;
     private Controls controls;
@@ -19,6 +20,7 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
     private Vector2 lookInput;
     private Vector3 velocity;
     private float verticalRotation = 0f;
+    private bool skipNextLookFrame = false;
 
     private void Awake()
     {
@@ -31,6 +33,10 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
 
         controls = new Controls();
         controls.Player.SetCallbacks(this);
+
+        verticalRotation = initialVerticalLook;
+        if (cameraTransform != null)
+            cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
 
         LockCursor();
     }
@@ -94,6 +100,13 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
     {
         if (cameraTransform == null) return;
 
+        if (skipNextLookFrame)
+        {
+            skipNextLookFrame = false;
+            lookInput = Vector2.zero;
+            return;
+        }
+
         float mouseX = lookInput.x * lookSensitivity;
         float mouseY = lookInput.y * lookSensitivity;
 
@@ -119,6 +132,8 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        lookInput = Vector2.zero;
+        skipNextLookFrame = true;
     }
 
     private void UnlockCursor()
