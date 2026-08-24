@@ -15,7 +15,7 @@ public class DoorTrigger : MonoBehaviour
 
     [Header("Popup Text")]
     public TMP_Text popupText;
-    public string popupMessage = "Object has now popped up";
+    public string popupMessage = "Object has now appeared";
     public float textDisplayDuration = 3f;
 
     private bool hasTriggered = false;
