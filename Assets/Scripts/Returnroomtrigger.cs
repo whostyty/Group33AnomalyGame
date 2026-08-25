@@ -18,6 +18,6 @@ public class ReturnRoomTrigger : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene("Hallway.Scene 2");
+        SceneManager.LoadScene(sceneToLoad);
     }
 }
