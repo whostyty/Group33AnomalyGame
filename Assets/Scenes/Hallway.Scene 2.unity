@@ -61640,6 +61640,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1839219040
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1839219041}
+  m_Layer: 0
+  m_Name: Respawn Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1839219041
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1839219040}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
+  m_LocalPosition: {x: 0.6, y: 0.93, z: 2.59}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &1842436022
 Mesh:
   m_ObjectHideFlags: 0
@@ -62445,6 +62476,7 @@ GameObject:
   - component: {fileID: 2039928250}
   - component: {fileID: 2039928249}
   - component: {fileID: 2039928255}
+  - component: {fileID: 2039928256}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -62631,6 +62663,20 @@ MonoBehaviour:
   lookSensitivity: 0.5
   verticalLookLimit: 90
   initialVerticalLook: 0
+--- !u!114 &2039928256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2039928247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a8cc53a885252946bbd28b69bb2c009, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FallRespawn
+  spawnPoint: {fileID: 1839219041}
+  fallThreshold: -5
 --- !u!43 &2066491154
 Mesh:
   m_ObjectHideFlags: 0
@@ -63171,6 +63217,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 832575519}
   - {fileID: 1052218762}
+  - {fileID: 1839219041}
   - {fileID: 2039928254}
   - {fileID: 70328209}
   - {fileID: 3613988}

@@ -68,6 +68,11 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
         moveInput = context.ReadValue<Vector2>();
     }
 
+    public void ResetVelocity()
+    {
+        velocity = Vector3.zero;
+    }
+
     public void OnLook(InputAction.CallbackContext context)
     {
         lookInput = context.ReadValue<Vector2>();
