@@ -4,79 +4,101 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    private const string TutorialScene = "Tutorial Scene";
+    [Header("Scene Names")]
+    [SerializeField] private string tutorialSceneName = "Tutorial Scene";
 
-    // Begin Game: Continue progress or start tutorial
+    [Header("Menu Panels")]
+    [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private GameObject settingsPanel;
+
+    private void Start()
+    {
+        // Ensure the game isn't paused when entering the menu
+        Time.timeScale = 1f;
+
+        // Show main menu and hide settings
+        if (mainMenuPanel != null)
+            mainMenuPanel.SetActive(true);
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+
+        // Make cursor visible and unlocked
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    // PLAY BUTTON
     public void BeginGame()
     {
         SaveSystem.ClearTutorialReturnScene();
-        string sceneToLoad = TutorialScene;
 
-        if (SaveSystem.HasSave())
+        string savedScene = SaveSystem.GetSavedLevel();
+
+        if (!string.IsNullOrEmpty(savedScene) &&
+            Application.CanStreamedLevelBeLoaded(savedScene))
         {
-            string savedLevel = SaveSystem.GetSavedLevel();
-
-            if (Application.CanStreamedLevelBeLoaded(savedLevel))
-            {
-                sceneToLoad = savedLevel;
-            }
-            else
-            {
-                Debug.LogWarning(
-                    "Saved level not found: " + savedLevel +
-                    ". Loading tutorial instead."
-                );
-            }
-        }
-
-        Debug.Log("Loading: " + sceneToLoad);
-        SceneManager.LoadScene(sceneToLoad);
-    }
-
-    // Replay the tutorial manually
-
-    public void OpenTutorial()
-    {
-        // Use the saved level as the return destination
-        if (SaveSystem.HasSave())
-        {
-            string savedLevel = SaveSystem.GetSavedLevel();
-
-            if (Application.CanStreamedLevelBeLoaded(savedLevel))
-            {
-                SaveSystem.SetTutorialReturnScene(savedLevel);
-            }
-            else
-            {
-                SaveSystem.ClearTutorialReturnScene();
-            }
+            SceneManager.LoadScene(savedScene);
         }
         else
         {
-            // First-time players follow normal tutorial progression
+            // New players begin with the tutorial
+            SceneManager.LoadScene(tutorialSceneName);
+        }
+    }
+
+    // TUTORIAL BUTTON
+    public void OpenTutorial()
+    {
+        string savedScene = SaveSystem.GetSavedLevel();
+
+        if (!string.IsNullOrEmpty(savedScene) &&
+            Application.CanStreamedLevelBeLoaded(savedScene))
+        {
+            // Return to saved progress after replaying tutorial
+            SaveSystem.SetTutorialReturnScene(savedScene);
+        }
+        else
+        {
             SaveSystem.ClearTutorialReturnScene();
         }
 
-        SceneManager.LoadScene("Tutorial Scene");
+        SceneManager.LoadScene(tutorialSceneName);
     }
 
-
-    // Open settings
+    // SETTINGS BUTTON
     public void OpenSettings()
     {
-        SceneManager.LoadScene("Settings");
+        if (mainMenuPanel != null)
+            mainMenuPanel.SetActive(false);
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(true);
     }
 
-    // Quit the game
-    public void QuitGame()
+    // BACK BUTTON IN SETTINGS
+    public void CloseSettings()
     {
-        Debug.Log("Quitting game...");
-        Application.Quit();
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+
+        if (mainMenuPanel != null)
+            mainMenuPanel.SetActive(true);
     }
 
-    // Optional: Reset progress for testing
+    // OPTIONAL RESET PROGRESS BUTTON
     public void ResetSave()
     {
         SaveSystem.ResetProgress();
+        SaveSystem.ClearTutorialReturnScene();
+
+        Debug.Log("Game progress has been reset.");
+    }
+
+    // QUIT BUTTON
+    public void QuitGame()
+    {
+        Debug.Log("Quitting Hall Pass...");
+        Application.Quit();
     }
 }
