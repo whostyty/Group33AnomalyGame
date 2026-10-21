@@ -8,6 +8,18 @@ public class FallRespawn : MonoBehaviour
     private CharacterController controller;
     private FPController fpController;
 
+
+    private void Start()
+    {
+        if (spawnPoint != null && fpController != null)
+        {
+            fpController.TeleportTo(
+                spawnPoint.position,
+                spawnPoint.rotation
+            );
+        }
+    }
+
     private void Awake()
     {
         controller = GetComponent<CharacterController>();

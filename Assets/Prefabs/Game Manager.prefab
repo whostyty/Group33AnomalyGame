@@ -48,8 +48,8 @@ MonoBehaviour:
   randomizeAnomaly: 0
   anomalyObject: {fileID: 0}
   roomStartPoint: {fileID: 0}
-  nextSceneName: Hallway.Scene
-  loadDelay: 4
+  nextSceneName: Hallway.Scene 2
+  loadDelay: 0
   onCorrectAnswer:
     m_PersistentCalls:
       m_Calls: []
@@ -66,7 +66,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6799765538703238373}
   - component: {fileID: 5961847394023849825}
-  - component: {fileID: 3457588175803577718}
   - component: {fileID: 4698362097728080415}
   m_Layer: 0
   m_Name: DoorTrigger(No anomaly)
@@ -83,9 +82,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2025361783632368547}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.71476, y: 1.4, z: 12.82}
-  m_LocalScale: {x: 2.6617, y: 2.6617, z: 2.6617}
+  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: -959.5824, y: -538.2752, z: 5.02}
+  m_LocalScale: {x: 1.048713, y: -0.7213649, z: 37.49682}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 503814753156716844}
@@ -111,26 +110,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 0.1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3457588175803577718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2025361783632368547}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db5665ddc6a7711418878fafd8217144, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DoorTrigger
-  playerTag: Player
-  triggerOnce: 1
-  popupObject: {fileID: 0}
-  popDuration: 0.25
-  popScale: 1
-  popupText: {fileID: 0}
-  popupMessage: Object has now appeared!!
-  textDisplayDuration: 3
 --- !u!114 &4698362097728080415
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,8 +205,8 @@ Transform:
   m_GameObject: {fileID: 2604901696744247037}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.71476, y: 1.4, z: -11.47}
-  m_LocalScale: {x: 2.6617, y: 2.6617, z: 2.6617}
+  m_LocalPosition: {x: -959.5384, y: -538.131, z: -19.87}
+  m_LocalScale: {x: 1.048713, y: 1.4638475, z: 3.6996}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 503814753156716844}
@@ -295,8 +274,8 @@ Transform:
   m_GameObject: {fileID: 2778329659616843796}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.71476, y: 1.4, z: 6.18}
-  m_LocalScale: {x: 2.6617, y: 2.6617, z: 2.6617}
+  m_LocalPosition: {x: -959.5824, y: -538.2752, z: -2.33}
+  m_LocalScale: {x: 2.103928, y: 1.3566705, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 503814753156716844}
@@ -432,10 +411,10 @@ Transform:
   - {fileID: 165390711571612184}
   - {fileID: 8280069893106615879}
   - {fileID: 7476355173444971000}
-  - {fileID: 1164170790657282135}
+  - {fileID: 5790196799561347520}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &8937203989914811772
+--- !u!1 &8272762956372389445
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -443,22 +422,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1164170790657282135}
-  - component: {fileID: 4998962195934776555}
+  - component: {fileID: 5790196799561347520}
+  - component: {fileID: 4444950199157610321}
   m_Layer: 0
-  m_Name: TutorialManager
+  m_Name: PauseMenuManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1164170790657282135
+--- !u!4 &5790196799561347520
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8937203989914811772}
+  m_GameObject: {fileID: 8272762956372389445}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -467,63 +446,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 503814753156716844}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4998962195934776555
+--- !u!114 &4444950199157610321
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8937203989914811772}
+  m_GameObject: {fileID: 8272762956372389445}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b45406bfb7bcd8f4297e9c7bc7130472, type: 3}
+  m_Script: {fileID: 11500000, guid: 5479f5a45d90cfd49bed06f218e98091, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TutorialManager
-  player: {fileID: 0}
-  anomalyObserver: {fileID: 4851625861366962939}
-  room: {fileID: 8745376825516155521}
-  panel: {fileID: 0}
-  messageText: {fileID: 0}
-  promptText: {fileID: 0}
-  popDuration: 0.25
-  lookThreshold: 150
-  feedbackSeconds: 4
-  correctMessage: 'Correct! That door leads to the next level.
-
-    From here on,
-    nothing will tell you whether a room has an anomaly. It is up to you to spot
-    it.'
-  wrongMessage: 'Wrong door! In the real game, choosing wrongly sends you back to
-    the start of the room, just like now.
-
-    Look again and try the other door.'
-  steps:
-  - message: 'Welcome to Hall Pass.
-
-      In this game you need to go through all
-      the rooms and detect if anything changes.'
-    prompt: Press W to start
-    goal: 0
-    minDisplayTime: 2
-  - message: 'Good! Use W, A, S and D to walk around the room.
-
-      Now move your
-      mouse to look around.'
-    prompt: Move the mouse to look around
-    goal: 1
-    minDisplayTime: 1.5
-  - message: 'Now that you have learnt how to move and look around, try looking around
-      for something that looks different.
-
-      There IS an anomaly in this room.
-      In the real game, nothing will tell you.'
-    prompt: Find what has changed
-    goal: 2
-    minDisplayTime: 1
-  - message: 'You found an anomaly!
-
-      When a room has an anomaly, walk through
-      the ANOMALY door. If nothing has changed, take the NO CHANGE door.'
-    prompt: Walk through the anomaly door
-    goal: 3
-    minDisplayTime: 0
+  m_EditorClassIdentifier: Assembly-CSharp::PauseMenu
+  pausePanel: {fileID: 0}
+  settingsPanel: {fileID: 0}
+  mainMenuScene: MainMenu
+  tutorialScene: Tutorial Scene

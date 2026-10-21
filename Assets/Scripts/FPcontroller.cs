@@ -34,9 +34,14 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
         controls = new Controls();
         controls.Player.SetCallbacks(this);
 
-        verticalRotation = initialVerticalLook;
+
+        verticalRotation = 0f;
+
         if (cameraTransform != null)
-            cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+        {
+            cameraTransform.localRotation = Quaternion.identity;
+        }
+
 
         LockCursor();
     }
@@ -58,7 +63,6 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
 
     private void Update()
     {
-        HandleCursorToggle();
         HandleMovement();
         HandleLook();
     }
@@ -137,16 +141,6 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
         transform.Rotate(Vector3.up * mouseX);
     }
 
-    private void HandleCursorToggle()
-    {
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
-        {
-            if (Cursor.lockState == CursorLockMode.Locked)
-                UnlockCursor();
-            else
-                LockCursor();
-        }
-    }
 
     private void LockCursor()
     {

@@ -61,25 +61,64 @@ public class RoomManager : MonoBehaviour
         player.TeleportTo(roomStartPoint.position, roomStartPoint.rotation);
     }
 
+
+
     private IEnumerator LoadNextRoom()
     {
         if (loadDelay > 0f)
             yield return new WaitForSecondsRealtime(loadDelay);
 
-        if (string.IsNullOrEmpty(nextSceneName))
+        string destination = nextSceneName;
+
+        // Check if the player is replaying the tutorial
+        bool returningFromTutorial =
+            SceneManager.GetActiveScene().name == "Tutorial Scene" &&
+            SaveSystem.HasTutorialReturnScene();
+
+        if (returningFromTutorial)
         {
-            Debug.LogError($"{name}: RoomManager has no Next Scene Name set.", this);
+            destination = SaveSystem.GetTutorialReturnScene();
+        }
+
+        if (string.IsNullOrEmpty(destination))
+        {
+            Debug.LogError(
+                $"{name}: No destination scene has been assigned.",
+                this
+            );
+
             resolving = false;
             yield break;
         }
 
-        if (!Application.CanStreamedLevelBeLoaded(nextSceneName))
+        if (!Application.CanStreamedLevelBeLoaded(destination))
         {
-            Debug.LogError($"{name}: Scene '{nextSceneName}' is not in File > Build Settings > Scenes In Build.", this);
+            Debug.LogError(
+                $"{name}: Scene '{destination}' is not in the build scene list.",
+                this
+            );
+
             resolving = false;
             yield break;
         }
 
-        SceneManager.LoadScene(nextSceneName);
+        if (returningFromTutorial)
+        {
+            // Tutorial replay: do not overwrite normal progress
+            SaveSystem.ClearTutorialReturnScene();
+
+            Debug.Log("Returning from tutorial to: " + destination);
+        }
+        else
+        {
+            // Normal level progression
+            SaveSystem.SaveLevel(destination);
+
+            Debug.Log("Progress saved: " + destination);
+        }
+
+        SceneManager.LoadScene(destination);
     }
+
+
 }
