@@ -68,9 +68,24 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
         moveInput = context.ReadValue<Vector2>();
     }
 
+    public Vector2 MoveInput => moveInput;
+    public Vector2 LookInput => lookInput;
+
     public void ResetVelocity()
     {
         velocity = Vector3.zero;
+    }
+
+    public void TeleportTo(Vector3 position, Quaternion rotation)
+    {
+        if (controller != null) controller.enabled = false;
+        transform.SetPositionAndRotation(position, rotation);
+        if (controller != null) controller.enabled = true;
+
+        velocity = Vector3.zero;
+        verticalRotation = initialVerticalLook;
+        if (cameraTransform != null)
+            cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
     }
 
     public void OnLook(InputAction.CallbackContext context)
