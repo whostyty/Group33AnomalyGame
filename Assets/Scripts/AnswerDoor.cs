@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class AnswerDoor : MonoBehaviour
 {
+    [Header("Door Settings")]
     public RoomManager room;
     public bool isAnomalyDoor;
     public string playerTag = "Player";

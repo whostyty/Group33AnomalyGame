@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class FallRespawn : MonoBehaviour
 {
+    [Header("Respawn Settings")]
     public Transform spawnPoint;
     public float fallThreshold = -20f;
 

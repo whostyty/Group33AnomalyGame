@@ -13,6 +13,7 @@ public class AnomalyObserver : MonoBehaviour
     public float lookTimeRequired = 0.5f;
     public LayerMask obstructionMask = ~0;
 
+    [Header("Events")]
     public UnityEvent onSpotted = new UnityEvent();
 
     public bool HasSpotted { get; private set; }
