@@ -34,9 +34,14 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
         controls = new Controls();
         controls.Player.SetCallbacks(this);
 
-        verticalRotation = initialVerticalLook;
+
+        verticalRotation = 0f;
+
         if (cameraTransform != null)
-            cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+        {
+            cameraTransform.localRotation = Quaternion.identity;
+        }
+
 
         LockCursor();
     }
@@ -58,7 +63,6 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
 
     private void Update()
     {
-        HandleCursorToggle();
         HandleMovement();
         HandleLook();
     }
@@ -66,6 +70,26 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
     public void OnMovement(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
+    }
+
+    public Vector2 MoveInput => moveInput;
+    public Vector2 LookInput => lookInput;
+
+    public void ResetVelocity()
+    {
+        velocity = Vector3.zero;
+    }
+
+    public void TeleportTo(Vector3 position, Quaternion rotation)
+    {
+        if (controller != null) controller.enabled = false;
+        transform.SetPositionAndRotation(position, rotation);
+        if (controller != null) controller.enabled = true;
+
+        velocity = Vector3.zero;
+        verticalRotation = initialVerticalLook;
+        if (cameraTransform != null)
+            cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
     }
 
     public void OnLook(InputAction.CallbackContext context)
@@ -117,16 +141,6 @@ public class FPController : MonoBehaviour, Controls.IPlayerActions
         transform.Rotate(Vector3.up * mouseX);
     }
 
-    private void HandleCursorToggle()
-    {
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
-        {
-            if (Cursor.lockState == CursorLockMode.Locked)
-                UnlockCursor();
-            else
-                LockCursor();
-        }
-    }
 
     private void LockCursor()
     {
