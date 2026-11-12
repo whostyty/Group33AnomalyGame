@@ -14,6 +14,7 @@ public class TutorialManager : MonoBehaviour
         public string prompt;
         public StepGoal goal;
         public float minDisplayTime = 1.5f;
+        public bool showDoorLabels;
     }
 
     [Header("References (auto-found if empty)")]
@@ -27,6 +28,9 @@ public class TutorialManager : MonoBehaviour
     public TMP_Text promptText;
     public float popDuration = 0.25f;
 
+    [Header("Door Labels (world-space text above each door)")]
+    public GameObject[] doorLabels;
+
     [Header("Tutorial Settings")]
     public float lookThreshold = 150f;
     public float feedbackSeconds = 4f;
@@ -35,7 +39,7 @@ public class TutorialManager : MonoBehaviour
     public string correctMessage = "Correct! That door leads to the next level.\nFrom here on, nothing will tell you whether a room has an anomaly. It is up to you to spot it.";
 
     [TextArea(2, 4)]
-    public string wrongMessage = "Wrong door! In the real game, choosing wrongly sends you back to the start of the room, just like now.\nLook again and try the other door.";
+    public string wrongMessage = "Wrong door! In the real game, choosing wrongly sends you back to the start of the room, just like now.\nRemember: the ANOMALY door is in front of you and the NO CHANGE door is behind you.";
 
     public List<TutorialStep> steps = new List<TutorialStep>
     {
@@ -62,10 +66,19 @@ public class TutorialManager : MonoBehaviour
         },
         new TutorialStep
         {
-            message = "You found an anomaly!\nWhen a room has an anomaly, walk through the ANOMALY door. If nothing has changed, take the NO CHANGE door.",
+            message = "You found an anomaly!\nAt the start of every room, the ANOMALY door is in front of you and the NO CHANGE door is behind you.",
+            prompt = "Look at the labels above each door",
+            goal = StepGoal.Timed,
+            minDisplayTime = 6f,
+            showDoorLabels = true
+        },
+        new TutorialStep
+        {
+            message = "This room has an anomaly, so walk through the ANOMALY door.\nIf nothing had changed, you would turn around and take the NO CHANGE door instead.",
             prompt = "Walk through the anomaly door",
             goal = StepGoal.UseDoor,
-            minDisplayTime = 0f
+            minDisplayTime = 0f,
+            showDoorLabels = true
         }
     };
 
@@ -167,11 +180,24 @@ public class TutorialManager : MonoBehaviour
         if (index >= steps.Count)
         {
             finished = true;
+            SetDoorLabels(false);
             if (panel != null) panel.SetActive(false);
             return;
         }
 
+        SetDoorLabels(steps[index].showDoorLabels);
         ShowPanel(steps[index].message, steps[index].prompt);
+    }
+
+    private void SetDoorLabels(bool visible)
+    {
+        if (doorLabels == null) return;
+
+        foreach (GameObject label in doorLabels)
+        {
+            if (label != null && label.activeSelf != visible)
+                label.SetActive(visible);
+        }
     }
 
     private void HandleCorrect()
