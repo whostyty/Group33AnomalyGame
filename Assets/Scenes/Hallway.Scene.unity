@@ -15617,6 +15617,7 @@ MonoBehaviour:
   soundEffectsSlider: {fileID: 570689723}
   musicSlider: {fileID: 858260984}
   brightnessSlider: {fileID: 294724249}
+  sensitivitySlider: {fileID: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -53429,7 +53430,7 @@ PrefabInstance:
     - target: {fileID: 4444950199157610321, guid: 090f8bf553d39cf4a87522c7f25bdeda, type: 3}
       propertyPath: settingsPanel
       value: 
-      objectReference: {fileID: 262110698}
+      objectReference: {fileID: 0}
     - target: {fileID: 6799765538703238373, guid: 090f8bf553d39cf4a87522c7f25bdeda, type: 3}
       propertyPath: m_LocalScale.y
       value: 0.72
@@ -64108,6 +64109,8 @@ MonoBehaviour:
   terminalVelocity: -50
   cameraTransform: {fileID: 330585546}
   lookSensitivity: 0.5
+  gamepadLookSpeed: 129.5
+  lookSmoothingHalfLife: 0.025
   verticalLookLimit: 90
   initialVerticalLook: 0
 --- !u!114 &2039928256

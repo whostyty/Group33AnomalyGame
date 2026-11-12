@@ -43,8 +43,8 @@ public class DoorInteractor : MonoBehaviour
 
         string action = targetedDoor.IsOpen ? "Close door" : "Open door";
 
-        float width = 485f;
-        float height = 75f;
+        float width = 385f;
+        float height = 80f;
 
         Rect area = new Rect(
             (Screen.width - width) * 0.5f,
