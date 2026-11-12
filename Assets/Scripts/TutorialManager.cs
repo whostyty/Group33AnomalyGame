@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class TutorialManager : MonoBehaviour
 {
-    public enum StepGoal { PressForward, LookAround, SpotAnomaly, UseDoor, Timed }
+    public enum StepGoal { PressForward, LookAround, SpotAnomaly, UseDoor, Timed, OpenDoor }
 
     [System.Serializable]
     public class TutorialStep
@@ -21,6 +21,7 @@ public class TutorialManager : MonoBehaviour
     public FPController player;
     public AnomalyObserver anomalyObserver;
     public RoomManager room;
+    public InteractiveDoor tutorialDoor;
 
     [Header("UI")]
     public GameObject panel;
@@ -59,7 +60,14 @@ public class TutorialManager : MonoBehaviour
         },
         new TutorialStep
         {
-            message = "Now that you have learnt how to move and look around, try looking around for something that looks different.\nThere IS an anomaly in this room. In the real game, nothing will tell you.",
+            message = "Some doorways are closed. Walk up to the door ahead, look at it and press E to open it.",
+            prompt = "Look at the door and press E",
+            goal = StepGoal.OpenDoor,
+            minDisplayTime = 0f
+        },
+        new TutorialStep
+        {
+            message = "Now that you know how to open doors, look around for something that looks different.\nThere IS an anomaly in this room. In the real game, nothing will tell you.",
             prompt = "Find what has changed",
             goal = StepGoal.SpotAnomaly,
             minDisplayTime = 1f
@@ -74,8 +82,8 @@ public class TutorialManager : MonoBehaviour
         },
         new TutorialStep
         {
-            message = "This room has an anomaly, so walk through the ANOMALY door.\nIf nothing had changed, you would turn around and take the NO CHANGE door instead.",
-            prompt = "Walk through the anomaly door",
+            message = "This room has an anomaly. Walk to the ANOMALY door, press E to open it, then walk through.\nIf nothing had changed, you would choose the NO CHANGE door instead.",
+            prompt = "Press E to open the anomaly door, then walk through",
             goal = StepGoal.UseDoor,
             minDisplayTime = 0f,
             showDoorLabels = true
@@ -164,6 +172,9 @@ public class TutorialManager : MonoBehaviour
 
             case StepGoal.Timed:
                 return true;
+
+            case StepGoal.OpenDoor:
+                return tutorialDoor != null && tutorialDoor.HasBeenOpened;
 
             default:
                 return false;
