@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
@@ -5,12 +6,12 @@ using UnityEngine.InputSystem;
 public class PauseMenu : MonoBehaviour
 {
     [Header("UI Panels")]
-    public GameObject pausePanel;
-    public GameObject settingsPanel;
+    [SerializeField] private GameObject pausePanel;
+    [SerializeField] private GameObject settingsPanel;
 
     [Header("Scene Names")]
-    public string mainMenuScene = "Main Menu";
-    public string tutorialScene = "Tutorial Scene";
+    [SerializeField] private string mainMenuScene = "Main Menu";
+    [SerializeField] private string tutorialScene = "Tutorial Scene";
 
     private bool isPaused = false;
 
@@ -20,7 +21,7 @@ public class PauseMenu : MonoBehaviour
     {
         playerController = FindFirstObjectByType<FPController>();
 
-
+        // Make sure gameplay starts unpaused
         Time.timeScale = 1f;
         isPaused = false;
 
@@ -111,27 +112,27 @@ public class PauseMenu : MonoBehaviour
 
     public void OpenTutorial()
     {
-
+        // Remember which scene the player came from
         string currentScene = SceneManager.GetActiveScene().name;
 
         SaveSystem.SetTutorialReturnScene(currentScene);
 
-
+        // Restore normal time before changing scenes
         PrepareForSceneChange();
 
-
+        // Open the tutorial
         SceneManager.LoadScene(tutorialScene);
     }
 
 
     public void QuitToMainMenu()
     {
-
+        // Save the current gameplay scene
         SaveSystem.ClearTutorialReturnScene();
         string currentScene =
             SceneManager.GetActiveScene().name;
 
-
+        // Do not overwrite progress with the tutorial
         if (currentScene != tutorialScene &&
             currentScene != mainMenuScene)
         {

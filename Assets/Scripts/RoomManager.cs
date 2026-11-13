@@ -62,6 +62,7 @@ public class RoomManager : MonoBehaviour
     }
 
 
+
     private IEnumerator LoadNextRoom()
     {
         if (loadDelay > 0f)
@@ -69,7 +70,7 @@ public class RoomManager : MonoBehaviour
 
         string destination = nextSceneName;
 
-
+        // Check if the player is replaying the tutorial
         bool returningFromTutorial =
             SceneManager.GetActiveScene().name == "Tutorial Scene" &&
             SaveSystem.HasTutorialReturnScene();
@@ -103,14 +104,14 @@ public class RoomManager : MonoBehaviour
 
         if (returningFromTutorial)
         {
-
+            // Tutorial replay: do not overwrite normal progress
             SaveSystem.ClearTutorialReturnScene();
 
             Debug.Log("Returning from tutorial to: " + destination);
         }
         else
         {
-
+            // Normal level progression
             SaveSystem.SaveLevel(destination);
 
             Debug.Log("Progress saved: " + destination);

@@ -1,103 +1,82 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    [Header("Scene Names")]
-    public string tutorialSceneName = "Tutorial Scene";
+    private const string TutorialScene = "Tutorial Scene";
 
-    [Header("Menu Panels")]
-    public GameObject mainMenuPanel;
-    public GameObject settingsPanel;
-
-    private void Start()
-    {
-
-        Time.timeScale = 1f;
-
-
-        if (mainMenuPanel != null)
-            mainMenuPanel.SetActive(true);
-
-        if (settingsPanel != null)
-            settingsPanel.SetActive(false);
-
-
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-    }
-
-
+    // Begin Game: Continue progress or start tutorial
     public void BeginGame()
     {
         SaveSystem.ClearTutorialReturnScene();
+        string sceneToLoad = TutorialScene;
 
-        string savedScene = SaveSystem.GetSavedLevel();
-
-        if (!string.IsNullOrEmpty(savedScene) &&
-            Application.CanStreamedLevelBeLoaded(savedScene))
+        if (SaveSystem.HasSave())
         {
-            SceneManager.LoadScene(savedScene);
-        }
-        else
-        {
+            string savedLevel = SaveSystem.GetSavedLevel();
 
-            SceneManager.LoadScene(tutorialSceneName);
+            if (Application.CanStreamedLevelBeLoaded(savedLevel))
+            {
+                sceneToLoad = savedLevel;
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "Saved level not found: " + savedLevel +
+                    ". Loading tutorial instead."
+                );
+            }
         }
+
+        Debug.Log("Loading: " + sceneToLoad);
+        SceneManager.LoadScene(sceneToLoad);
     }
 
+    // Replay the tutorial manually
 
     public void OpenTutorial()
     {
-        string savedScene = SaveSystem.GetSavedLevel();
-
-        if (!string.IsNullOrEmpty(savedScene) &&
-            Application.CanStreamedLevelBeLoaded(savedScene))
+        // Use the saved level as the return destination
+        if (SaveSystem.HasSave())
         {
+            string savedLevel = SaveSystem.GetSavedLevel();
 
-            SaveSystem.SetTutorialReturnScene(savedScene);
+            if (Application.CanStreamedLevelBeLoaded(savedLevel))
+            {
+                SaveSystem.SetTutorialReturnScene(savedLevel);
+            }
+            else
+            {
+                SaveSystem.ClearTutorialReturnScene();
+            }
         }
         else
         {
+            // First-time players follow normal tutorial progression
             SaveSystem.ClearTutorialReturnScene();
         }
 
-        SceneManager.LoadScene(tutorialSceneName);
+        SceneManager.LoadScene("Tutorial Scene");
     }
 
 
+    // Open settings
     public void OpenSettings()
     {
-        if (mainMenuPanel != null)
-            mainMenuPanel.SetActive(false);
-
-        if (settingsPanel != null)
-            settingsPanel.SetActive(true);
+        SceneManager.LoadScene("Settings");
     }
 
-
-    public void CloseSettings()
+    // Quit the game
+    public void QuitGame()
     {
-        if (settingsPanel != null)
-            settingsPanel.SetActive(false);
-
-        if (mainMenuPanel != null)
-            mainMenuPanel.SetActive(true);
+        Debug.Log("Quitting game...");
+        Application.Quit();
     }
 
-
+    // Optional: Reset progress for testing
     public void ResetSave()
     {
         SaveSystem.ResetProgress();
-        SaveSystem.ClearTutorialReturnScene();
-
-        Debug.Log("Game progress has been reset.");
-    }
-
-
-    public void QuitGame()
-    {
-        Debug.Log("Quitting Hall Pass...");
-        Application.Quit();
     }
 }
