@@ -1,74 +1,53 @@
-
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
     [Header("UI Panels")]
-    [SerializeField] private GameObject pausePanel;
-    [SerializeField] private GameObject settingsPanel;
+    public GameObject pausePanel;
+    public GameObject settingsPanel;
 
-    [Header("Scene Names")]
-    [SerializeField] private string mainMenuScene = "Main Menu";
-    [SerializeField] private string tutorialScene = "Tutorial Scene";
+    [Header("Scenes")]
+    public string mainMenuScene = "MainMenu";
+    public string tutorialScene = "Tutorial Scene";
 
-    private bool isPaused = false;
+    [Header("Pause Input")]
+    public bool allowEscape = true;
+    public bool allowGamepadStart = true;
 
+    private bool isPaused;
     private FPController playerController;
+    public bool IsPaused => isPaused;
 
     private void Start()
     {
         playerController = FindFirstObjectByType<FPController>();
-
-        // Make sure gameplay starts unpaused
         Time.timeScale = 1f;
         isPaused = false;
-
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
-
-        if (settingsPanel != null)
-            settingsPanel.SetActive(false);
+        if (pausePanel != null) pausePanel.SetActive(false);
+        if (settingsPanel != null) settingsPanel.SetActive(false);
     }
 
     private void Update()
     {
-        if (Keyboard.current == null)
-            return;
+        bool escape = allowEscape && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame;
+        bool gamepad = allowGamepadStart && Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame;
+        if (!escape && !gamepad) return;
 
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
-        {
-            if (!isPaused)
-            {
-                PauseGame();
-            }
-            else if (settingsPanel != null &&
-                     settingsPanel.activeSelf)
-            {
-                BackToPause();
-            }
-            else
-            {
-                ResumeGame();
-            }
-        }
+        if (!isPaused) PauseGame();
+        else if (settingsPanel != null && settingsPanel.activeSelf) BackToPause();
+        else ResumeGame();
     }
 
     public void PauseGame()
     {
+        if (isPaused) return;
         isPaused = true;
         Time.timeScale = 0f;
-
-        if (pausePanel != null)
-            pausePanel.SetActive(true);
-
-        if (settingsPanel != null)
-            settingsPanel.SetActive(false);
-
-        if (playerController != null)
-            playerController.enabled = false;
-
+        if (pausePanel != null) pausePanel.SetActive(true);
+        if (settingsPanel != null) settingsPanel.SetActive(false);
+        if (playerController != null) playerController.enabled = false;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
@@ -77,70 +56,39 @@ public class PauseMenu : MonoBehaviour
     {
         isPaused = false;
         Time.timeScale = 1f;
-
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
-
-        if (settingsPanel != null)
-            settingsPanel.SetActive(false);
-
-        if (playerController != null)
-            playerController.enabled = true;
-
+        if (pausePanel != null) pausePanel.SetActive(false);
+        if (settingsPanel != null) settingsPanel.SetActive(false);
+        if (playerController != null) playerController.enabled = true;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
     public void OpenSettings()
     {
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
-
-        if (settingsPanel != null)
-            settingsPanel.SetActive(true);
+        if (pausePanel != null) pausePanel.SetActive(false);
+        if (settingsPanel != null) settingsPanel.SetActive(true);
     }
 
     public void BackToPause()
     {
-        if (settingsPanel != null)
-            settingsPanel.SetActive(false);
-
-        if (pausePanel != null)
-            pausePanel.SetActive(true);
+        if (settingsPanel != null) settingsPanel.SetActive(false);
+        if (pausePanel != null) pausePanel.SetActive(true);
     }
-
 
     public void OpenTutorial()
     {
-        // Remember which scene the player came from
-        string currentScene = SceneManager.GetActiveScene().name;
-
-        SaveSystem.SetTutorialReturnScene(currentScene);
-
-        // Restore normal time before changing scenes
+        SaveSystem.SetTutorialReturnScene(SceneManager.GetActiveScene().name);
         PrepareForSceneChange();
-
-        // Open the tutorial
         SceneManager.LoadScene(tutorialScene);
     }
 
-
     public void QuitToMainMenu()
     {
-        // Save the current gameplay scene
+        string sceneName = SceneManager.GetActiveScene().name;
         SaveSystem.ClearTutorialReturnScene();
-        string currentScene =
-            SceneManager.GetActiveScene().name;
-
-        // Do not overwrite progress with the tutorial
-        if (currentScene != tutorialScene &&
-            currentScene != mainMenuScene)
-        {
-            SaveSystem.SaveLevel(currentScene);
-        }
-
+        if (sceneName != mainMenuScene && sceneName != tutorialScene)
+            SaveSystem.SaveLevel(sceneName);
         PrepareForSceneChange();
-
         SceneManager.LoadScene(mainMenuScene);
     }
 
@@ -148,7 +96,6 @@ public class PauseMenu : MonoBehaviour
     {
         Time.timeScale = 1f;
         isPaused = false;
-
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }

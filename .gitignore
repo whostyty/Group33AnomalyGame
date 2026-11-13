@@ -104,3 +104,8 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+RUN_FIX.bat
+RepairSources/Hallway.Scene.unity
+RepairSources/Hallway.Scene 2.unity
+Repair_HallPass.ps1
+README_FIX.md

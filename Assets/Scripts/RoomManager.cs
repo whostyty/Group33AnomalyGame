@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -10,6 +11,10 @@ public class RoomManager : MonoBehaviour
     public bool randomizeAnomaly = false;
     public GameObject anomalyObject;
     public Transform roomStartPoint;
+
+    [Header("Optional Multiple Anomalies")]
+    public bool chooseRandomAnomalyFromList = false;
+    public List<GameObject> anomalyOptions = new List<GameObject>();
 
     [Header("Progression")]
     public string nextSceneName;
@@ -25,23 +30,30 @@ public class RoomManager : MonoBehaviour
     private void Awake()
     {
         player = FindFirstObjectByType<FPController>();
-        if (player == null)
-            Debug.LogError($"{name}: RoomManager could not find an FPController in the scene.", this);
+        if (randomizeAnomaly) hasAnomaly = Random.value > 0.5f;
 
-        if (roomStartPoint == null)
-            Debug.LogWarning($"{name}: RoomManager has no Room Start Point, so wrong answers cannot reset the player.", this);
+        if (chooseRandomAnomalyFromList)
+        {
+            List<GameObject> valid = anomalyOptions.FindAll(item => item != null);
+            if (valid.Count > 0)
+                anomalyObject = valid[Random.Range(0, valid.Count)];
+            else
+                Debug.LogWarning($"{name}: No anomaly objects have been added to Anomaly Options.", this);
+        }
 
-        if (randomizeAnomaly)
-            hasAnomaly = Random.value > 0.5f;
-
-        if (anomalyObject != null)
-            anomalyObject.SetActive(hasAnomaly);
+        foreach (GameObject candidate in anomalyOptions)
+        {
+            if (candidate != null && candidate != anomalyObject)
+                candidate.SetActive(false);
+        }
+        if (anomalyObject != null) anomalyObject.SetActive(hasAnomaly);
+        if (player == null) Debug.LogWarning($"{name}: No FPController found.", this);
+        if (roomStartPoint == null) Debug.LogWarning($"{name}: Assign Room Start Point to reset wrong answers.", this);
     }
 
     public void SubmitAnswer(bool choseAnomalyDoor)
     {
         if (resolving) return;
-
         if (choseAnomalyDoor == hasAnomaly)
         {
             resolving = true;
@@ -51,74 +63,25 @@ public class RoomManager : MonoBehaviour
         else
         {
             onWrongAnswer.Invoke();
-            SendPlayerToRoomStart();
+            if (player != null && roomStartPoint != null)
+                player.TeleportTo(roomStartPoint.position, roomStartPoint.rotation);
         }
     }
-
-    private void SendPlayerToRoomStart()
-    {
-        if (player == null || roomStartPoint == null) return;
-        player.TeleportTo(roomStartPoint.position, roomStartPoint.rotation);
-    }
-
-
 
     private IEnumerator LoadNextRoom()
     {
-        if (loadDelay > 0f)
-            yield return new WaitForSecondsRealtime(loadDelay);
-
+        if (loadDelay > 0f) yield return new WaitForSecondsRealtime(loadDelay);
         string destination = nextSceneName;
-
-        // Check if the player is replaying the tutorial
-        bool returningFromTutorial =
-            SceneManager.GetActiveScene().name == "Tutorial Scene" &&
-            SaveSystem.HasTutorialReturnScene();
-
-        if (returningFromTutorial)
+        bool returning = SceneManager.GetActiveScene().name == "Tutorial Scene" && SaveSystem.HasTutorialReturnScene();
+        if (returning) destination = SaveSystem.GetTutorialReturnScene();
+        if (string.IsNullOrEmpty(destination) || !Application.CanStreamedLevelBeLoaded(destination))
         {
-            destination = SaveSystem.GetTutorialReturnScene();
-        }
-
-        if (string.IsNullOrEmpty(destination))
-        {
-            Debug.LogError(
-                $"{name}: No destination scene has been assigned.",
-                this
-            );
-
+            Debug.LogError($"{name}: Destination '{destination}' not found in the build scene list.", this);
             resolving = false;
             yield break;
         }
-
-        if (!Application.CanStreamedLevelBeLoaded(destination))
-        {
-            Debug.LogError(
-                $"{name}: Scene '{destination}' is not in the build scene list.",
-                this
-            );
-
-            resolving = false;
-            yield break;
-        }
-
-        if (returningFromTutorial)
-        {
-            // Tutorial replay: do not overwrite normal progress
-            SaveSystem.ClearTutorialReturnScene();
-
-            Debug.Log("Returning from tutorial to: " + destination);
-        }
-        else
-        {
-            // Normal level progression
-            SaveSystem.SaveLevel(destination);
-
-            Debug.Log("Progress saved: " + destination);
-        }
-
+        if (returning) SaveSystem.ClearTutorialReturnScene();
+        else SaveSystem.SaveLevel(destination);
         SceneManager.LoadScene(destination);
     }
-
-
 }

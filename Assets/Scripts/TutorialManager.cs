@@ -14,80 +14,38 @@ public class TutorialManager : MonoBehaviour
         public string prompt;
         public StepGoal goal;
         public float minDisplayTime = 1.5f;
+        public bool showDoorLabels;
     }
 
-    [Header("References (auto-found if empty)")]
+    [Header("References (Auto-Find If Empty)")]
     public FPController player;
     public AnomalyObserver anomalyObserver;
     public RoomManager room;
     public InteractiveDoor tutorialDoor;
 
-    [Header("UI")]
+    [Header("Tutorial UI")]
     public GameObject panel;
     public TMP_Text messageText;
     public TMP_Text promptText;
     public float popDuration = 0.25f;
+    public GameObject[] doorLabels;
 
     [Header("Tutorial Settings")]
     public float lookThreshold = 150f;
     public float feedbackSeconds = 4f;
 
-    [TextArea(2, 4)]
-    public string correctMessage = "Correct! That door leads to the next level.\nFrom here on, nothing will tell you whether a room has an anomaly. It is up to you to spot it.";
+    [TextArea(2, 5)] public string correctMessage = "Correct! Continue through the door. Remember: choose ANOMALY when something changes, otherwise choose NO CHANGE.";
+    [TextArea(2, 5)] public string wrongMessage = "Wrong exit! Look again and try the other door.";
 
-    [TextArea(2, 4)]
-    public string wrongMessage = "Wrong door! In the real game, choosing wrongly sends you back to the start of the room, just like now.\nLook again and try the other door.";
-
+    [Header("Editable Tutorial Steps")]
     public List<TutorialStep> steps = new List<TutorialStep>
     {
-        new TutorialStep
-        {
-            message = "Welcome to Hall Pass.\nIn this game you need to go through all the rooms and detect if anything changes.",
-            prompt = "Press W to start",
-            goal = StepGoal.PressForward,
-            minDisplayTime = 2f
-        },
-        new TutorialStep
-        {
-            message = "Good! Use W, A, S and D to walk around the room.\nNow move your mouse to look around.",
-            prompt = "Move the mouse to look around",
-            goal = StepGoal.LookAround,
-            minDisplayTime = 1.5f
-        },
-        new TutorialStep
-        {
-            message = "Some doorways are closed. Walk up to the door ahead, look at it and press E to open it.",
-            prompt = "Look at the door and press E",
-            goal = StepGoal.OpenDoor,
-            minDisplayTime = 0f
-        },
-        new TutorialStep
-        {
-            message = "Now that you know how to open doors, look around for something that looks different.\nThere IS an anomaly in this room. In the real game, nothing will tell you.",
-            prompt = "Find what has changed",
-            goal = StepGoal.SpotAnomaly,
-            minDisplayTime = 1f
-        },
-        new TutorialStep
-        {
-<<<<<<< Updated upstream
-            message = "You found an anomaly!\nAt the start of every room, the ANOMALY door is in front of you and the NO CHANGE door is behind you.",
-            prompt = "Look at the labels above each door",
-            goal = StepGoal.Timed,
-            minDisplayTime = 6f,
-            showDoorLabels = true
-        },
-        new TutorialStep
-        {
-            message = "This room has an anomaly. Walk to the ANOMALY door, press E to open it, then walk through.\nIf nothing had changed, you would choose the NO CHANGE door instead.",
-            prompt = "Press E to open the anomaly door, then walk through",
-=======
-            message = "You found an anomaly!\nWhen a room has an anomaly, walk through the ANOMALY door. If nothing has changed, take the NO CHANGE door.",
-            prompt = "Walk through the anomaly door",
->>>>>>> Stashed changes
-            goal = StepGoal.UseDoor,
-            minDisplayTime = 0f
-        }
+        new TutorialStep { message = "Welcome to Hall Pass. Examine rooms and notice anything that changes.", prompt = "Press W to start", goal = StepGoal.PressForward, minDisplayTime = 2f },
+        new TutorialStep { message = "Move with W, A, S and D. Move your mouse to look around.", prompt = "Move the mouse", goal = StepGoal.LookAround },
+        new TutorialStep { message = "Walk up to the hallway door, look at it and press E to open it.", prompt = "Look at the door and press E", goal = StepGoal.OpenDoor, minDisplayTime = 0f },
+        new TutorialStep { message = "Find the object that looks different. This tutorial contains an anomaly.", prompt = "Find the anomaly", goal = StepGoal.SpotAnomaly, minDisplayTime = 1f },
+        new TutorialStep { message = "An anomaly is present. Look at the exit labels before choosing.", prompt = "Read both exit labels", goal = StepGoal.Timed, minDisplayTime = 6f, showDoorLabels = true },
+        new TutorialStep { message = "Open the ANOMALY exit with E, then walk through it. If nothing changed, use NO CHANGE instead.", prompt = "Open the ANOMALY exit", goal = StepGoal.UseDoor, minDisplayTime = 0f, showDoorLabels = true }
     };
 
     private int index = -1;
@@ -95,7 +53,6 @@ public class TutorialManager : MonoBehaviour
     private float lookAccumulated;
     private bool goalReached;
     private bool finished;
-
     private CanvasGroup canvasGroup;
     private Coroutine popRoutine;
     private Coroutine feedbackRoutine;
@@ -105,17 +62,21 @@ public class TutorialManager : MonoBehaviour
         if (player == null) player = FindFirstObjectByType<FPController>();
         if (anomalyObserver == null) anomalyObserver = FindFirstObjectByType<AnomalyObserver>();
         if (room == null) room = FindFirstObjectByType<RoomManager>();
-
+        if (doorLabels == null || doorLabels.Length == 0)
+        {
+            DoorLabel[] labels = FindObjectsByType<DoorLabel>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            System.Collections.Generic.List<GameObject> choices = new System.Collections.Generic.List<GameObject>();
+            foreach (DoorLabel label in labels)
+                if (label.gameObject.scene == gameObject.scene)
+                    choices.Add(label.gameObject);
+            doorLabels = choices.ToArray();
+        }
         if (panel != null)
         {
             canvasGroup = panel.GetComponent<CanvasGroup>();
-            if (canvasGroup == null)
-                canvasGroup = panel.AddComponent<CanvasGroup>();
+            if (canvasGroup == null) canvasGroup = panel.AddComponent<CanvasGroup>();
         }
-        else
-        {
-            Debug.LogError($"{name}: TutorialManager has no Panel assigned.", this);
-        }
+        else Debug.LogError($"{name}: No Tutorial Panel assigned.", this);
     }
 
     private void OnEnable()
@@ -136,48 +97,29 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        GoToStep(0);
-    }
+    private void Start() { GoToStep(0); }
 
     private void Update()
     {
-        if (finished || player == null || feedbackRoutine != null) return;
-        if (index < 0 || index >= steps.Count) return;
-
+        if (finished || player == null || feedbackRoutine != null || index < 0 || index >= steps.Count) return;
         TutorialStep step = steps[index];
         stepTimer += Time.deltaTime;
-
-        if (!goalReached)
-            goalReached = CheckGoal(step);
-
-        if (goalReached && stepTimer >= step.minDisplayTime)
-            GoToStep(index + 1);
+        if (!goalReached) goalReached = CheckGoal(step);
+        if (goalReached && stepTimer >= step.minDisplayTime) GoToStep(index + 1);
     }
 
     private bool CheckGoal(TutorialStep step)
     {
         switch (step.goal)
         {
-            case StepGoal.PressForward:
-                return player.MoveInput.y > 0.5f;
-
+            case StepGoal.PressForward: return player.MoveInput.y > 0.5f;
             case StepGoal.LookAround:
                 lookAccumulated += player.LookInput.magnitude;
                 return lookAccumulated >= lookThreshold;
-
-            case StepGoal.SpotAnomaly:
-                return anomalyObserver != null && anomalyObserver.HasSpotted;
-
-            case StepGoal.Timed:
-                return true;
-
-            case StepGoal.OpenDoor:
-                return tutorialDoor != null && tutorialDoor.HasBeenOpened;
-
-            default:
-                return false;
+            case StepGoal.SpotAnomaly: return anomalyObserver != null && anomalyObserver.HasSpotted;
+            case StepGoal.OpenDoor: return tutorialDoor != null && tutorialDoor.HasBeenOpened;
+            case StepGoal.Timed: return true;
+            default: return false;
         }
     }
 
@@ -187,33 +129,34 @@ public class TutorialManager : MonoBehaviour
         stepTimer = 0f;
         lookAccumulated = 0f;
         goalReached = false;
-
         if (index >= steps.Count)
         {
             finished = true;
             if (panel != null) panel.SetActive(false);
             return;
         }
-
+        UpdateDoorLabels(steps[index].showDoorLabels);
         ShowPanel(steps[index].message, steps[index].prompt);
+    }
+
+    private void UpdateDoorLabels(bool visible)
+    {
+        if (doorLabels == null) return;
+        foreach (GameObject label in doorLabels)
+            if (label != null) label.SetActive(visible);
     }
 
     private void HandleCorrect()
     {
         finished = true;
-        if (feedbackRoutine != null)
-        {
-            StopCoroutine(feedbackRoutine);
-            feedbackRoutine = null;
-        }
+        if (feedbackRoutine != null) { StopCoroutine(feedbackRoutine); feedbackRoutine = null; }
         ShowPanel(correctMessage, "");
     }
 
     private void HandleWrong()
     {
         if (finished) return;
-        if (feedbackRoutine != null)
-            StopCoroutine(feedbackRoutine);
+        if (feedbackRoutine != null) StopCoroutine(feedbackRoutine);
         feedbackRoutine = StartCoroutine(WrongFeedback());
     }
 
@@ -222,7 +165,6 @@ public class TutorialManager : MonoBehaviour
         ShowPanel(wrongMessage, "");
         yield return new WaitForSecondsRealtime(feedbackSeconds);
         feedbackRoutine = null;
-
         if (!finished && index >= 0 && index < steps.Count)
             ShowPanel(steps[index].message, steps[index].prompt);
     }
@@ -230,42 +172,35 @@ public class TutorialManager : MonoBehaviour
     private void ShowPanel(string message, string prompt)
     {
         if (panel == null) return;
-
-        if (messageText != null)
-            messageText.text = message;
-
+        if (messageText != null) messageText.text = message;
         if (promptText != null)
         {
             promptText.text = prompt;
             promptText.gameObject.SetActive(!string.IsNullOrEmpty(prompt));
         }
-
         panel.SetActive(true);
-
-        if (popRoutine != null)
-            StopCoroutine(popRoutine);
+        if (popRoutine != null) StopCoroutine(popRoutine);
         popRoutine = StartCoroutine(PopIn());
     }
 
     private IEnumerator PopIn()
     {
+        if (canvasGroup == null) yield break;
         Transform t = panel.transform;
         Vector3 startScale = Vector3.one * 0.9f;
+        float duration = Mathf.Max(0.001f, popDuration);
         float elapsed = 0f;
-
         canvasGroup.alpha = 0f;
         t.localScale = startScale;
-
-        while (elapsed < popDuration)
+        while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
-            float k = Mathf.Clamp01(elapsed / popDuration);
+            float k = Mathf.Clamp01(elapsed / duration);
             k = 1f - Mathf.Pow(1f - k, 3f);
             canvasGroup.alpha = k;
             t.localScale = Vector3.Lerp(startScale, Vector3.one, k);
             yield return null;
         }
-
         canvasGroup.alpha = 1f;
         t.localScale = Vector3.one;
     }
